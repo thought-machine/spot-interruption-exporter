@@ -29,7 +29,7 @@
 **/
 
 locals {
-  service_account_member = "serviceAccount.${var.project}.svc.id.goog[${var.kubernetes_service_account_namespace}/${var.kubernetes_service_account_name}]"
+  service_account_member = "serviceAccount:${var.project}.svc.id.goog[${var.kubernetes_service_account_namespace}/${var.kubernetes_service_account_name}]"
 
 }
 
@@ -72,7 +72,6 @@ resource "google_service_account" "spot_interruption_notifier" {
 resource "google_service_account_iam_binding" "workload_identity_user" {
   service_account_id = google_service_account.spot_interruption_notifier.name
   role               = "roles/iam.workloadIdentityUser"
-  project            = var.project
 
   members = [
     local.service_account_member,
@@ -82,7 +81,6 @@ resource "google_service_account_iam_binding" "workload_identity_user" {
 resource "google_service_account_iam_binding" "pubsub_subsriber" {
   service_account_id = google_service_account.spot_interruption_notifier.name
   role               = "roles/pubsub.subscriber"
-  project            = var.project
 
   members = [
     local.service_account_member,
