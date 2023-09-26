@@ -1,0 +1,15 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: -deployment
+spec:
+  replicas: 1
+  template:
+    spec:
+      serviceAccountName: spot-interruption-notifier
+      containers:
+        - name: spot-interruption-notifier
+          image: thought-machine/spot-interruption-notifier:latest
+          ports:
+            - containerPort: 8090
+              name: metrics

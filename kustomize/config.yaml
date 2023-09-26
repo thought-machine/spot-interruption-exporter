@@ -1,0 +1,8 @@
+cloud_provider: gcp
+cluster_name: example-cluster
+gcp:
+  project_name: example-project
+  subscription_name: spot-interruption-exporter-subscription
+prometheus:
+  port: 8090
+  path: /metrics
