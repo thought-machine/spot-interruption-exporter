@@ -1,0 +1,8 @@
+cloud_provider: gcp
+cluster_name: development-us-west-2
+gcp:
+  project_name: dev
+  subscription_name: spot-interruption-exporter-subscription
+prometheus:
+  port: 1111
+  path: /bespoke-metrics-path

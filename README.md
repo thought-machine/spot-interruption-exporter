@@ -16,7 +16,7 @@ prometheus:
 ```
 
 ## Deploying
-`kustomize/` holds relevant kubernetes config files. If you are referencing this remotely, you will likely want to include the following snippet to override the `config.yaml`  
+`kustomize/` holds relevant kubernetes config files. You will likely want to overlay the base resources. For an example of how you might do this, see `kustomize/example-overlay`.
 
 ## GCP overview
 ![gcp_layout.png](img/gcp.png)
