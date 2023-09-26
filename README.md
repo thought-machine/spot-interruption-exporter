@@ -3,7 +3,7 @@ Publishes a prometheus metric `interruption_events_total` whenever a spot instan
 
 ## Config
 
-The app reads in the config file from `$CONFIG_PATH` with the structure below.
+The app reads in a config file from `$CONFIG_PATH` with the structure below.
 
 ```yaml
 cloud_provider: gcp 
