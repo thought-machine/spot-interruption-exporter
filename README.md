@@ -1,9 +1,9 @@
 # spot-interruption-notifier
 Publishes a prometheus metric `interruption_events_total` whenever a spot instance has been interrupted.
 
-The app depends on existing infrastructure before it can be ran. This lives under `infra/gcp`.
-
 The app can be expanded to support other cloud providers, but currently is only built for GCP.
+
+![spot-interruption-exporter-gcp](https://github.com/thought-machine/spot-interruption-exporter/assets/11613073/8ff2f40d-6495-45d0-bc8d-3269661c854f)
 
 ## Config
 
@@ -20,12 +20,9 @@ prometheus:
 ```
 
 ## Deploying
-`kustomize/` holds relevant kubernetes config files. You will likely want to overlay the base resources. For an example of how you might do this, see `kustomize/example-overlay`.
 
-## GCP overview
-![gcp_layout.png](img/gcp.png)
-
-### Local development
+### Infrastructure
+You'll need to deploy the required infrastructure before standing up the application.
 
 The infrastructure that the app depends for GCP on can be created via
 ```bash
@@ -38,8 +35,12 @@ and can be destroyed via
 $ terraform -chdir=infra/gcp destroy
 ```
 
-You can send a test message via
+### Kubernetes manifests
+`kustomize/` holds relevant kubernetes config files. You will likely want to overlay the base resources. For an example of how you might do this, see `kustomize/example-overlay`.
 
+## Verifying
+
+You can send a test message via
 ```bash
 $ gcloud pubsub topics publish spot-interruption-exporter-topic --message '{
   "protoPayload": {
