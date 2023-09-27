@@ -1,6 +1,15 @@
 # spot-interruption-notifier
 Publishes a prometheus metric `interruption_events_total` whenever a spot instance has been interrupted.
 
+This is a very helpful metric, as it 
+
+- helps correlate workload issues with spot interruption times
+
+- can aid in seeing if certain flavours are more susceptible to interruption
+
+- can aid in seeing how much more susceptible single-zone clusters are to interruption
+
+- can be used as a signal on whether or not to promote spot instances to other environments
 
 The app can be expanded to support other cloud providers, but currently is only built for GCP.
 
