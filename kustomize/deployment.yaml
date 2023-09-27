@@ -7,9 +7,23 @@ spec:
   template:
     spec:
       serviceAccountName: spot-interruption-notifier
+      securityContext:
+        fsGroup: 65534
+        runAsUser: 37100
+        runAsGroup: 37100
       containers:
         - name: spot-interruption-notifier
           image: thought-machine/spot-interruption-notifier:latest
+          resources:
+            requests:
+              memory: "50Mi"
+              cpu: "0.1"
+            limits:
+              memory: "250Mi"
+              cpu: ".5"
+          envFrom:
+            - configMapRef:
+                name: terminator-config
           ports:
             - containerPort: 8090
               name: metrics

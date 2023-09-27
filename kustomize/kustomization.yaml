@@ -4,7 +4,9 @@ kind: Kustomization
 namespace: spot-interruption-exporter
 namePrefix: spot-interruption-exporter
 commonLabels:
+  name: spot-interruption-exporter
   app: spot-interruption-exporter
+  project: spot-interruption-exporter
 
 configMapGenerator:
   - name: -configmap
