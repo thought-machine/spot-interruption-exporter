@@ -1,6 +1,10 @@
 # spot-interruption-notifier
 Publishes a prometheus metric `interruption_events_total` whenever a spot instance has been interrupted.
 
+The app depends on existing infrastructure before it can be ran. This lives under `infra/gcp`.
+
+The app can be expanded to support other cloud providers, but currently is only built for GCP.
+
 ## Config
 
 The app reads in a config file from `$CONFIG_PATH` with the structure below.
@@ -82,6 +86,3 @@ $ curl localhost:8080/metrics | grep interruption
 # TYPE interruption_events_total counter
 interruption_events_total{kubernetes_cluster="kubernetes-cluster"} 6
 ```
-
-## AWS Overview
-This has not been implemented for AWS, although something similar could be achieved using EventBridge -> SQS Queue.
