@@ -1,4 +1,4 @@
-# spot-interruption-notifier
+# spot-interruption-exporter
 Publishes a prometheus metric `interruption_events_total` whenever a spot instance has been interrupted.
 
 This is a very helpful metric, as it 
