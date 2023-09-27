@@ -1,6 +1,7 @@
 # spot-interruption-notifier
 Publishes a prometheus metric `interruption_events_total` whenever a spot instance has been interrupted.
 
+
 The app can be expanded to support other cloud providers, but currently is only built for GCP.
 
 ![spot-interruption-exporter-gcp](https://github.com/thought-machine/spot-interruption-exporter/assets/11613073/8ff2f40d-6495-45d0-bc8d-3269661c854f)
