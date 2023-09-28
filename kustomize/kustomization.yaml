@@ -3,6 +3,11 @@ kind: Kustomization
 
 namespace: spot-interruption-exporter
 namePrefix: spot-interruption-exporter
+images:
+  - name: spot-interruption-exporter
+    newName: ghcr.io/thought-machine/spot-interruption-exporter
+    newTag: sha-2d14eb4
+
 commonLabels:
   name: spot-interruption-exporter
   app: spot-interruption-exporter
@@ -19,3 +24,5 @@ resources:
   - deployment.yaml
   - namespace.yaml
   - serviceaccount.yaml
+  - servicemonitor.yaml
+  - service.yaml

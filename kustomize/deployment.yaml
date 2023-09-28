@@ -6,14 +6,14 @@ spec:
   replicas: 1
   template:
     spec:
-      serviceAccountName: spot-interruption-notifier
+      serviceAccountName: spot-interruption-exporter-sa
       securityContext:
         fsGroup: 65534
         runAsUser: 37100
         runAsGroup: 37100
       containers:
-        - name: spot-interruption-notifier
-          image: thought-machine/spot-interruption-notifier:latest
+        - name: spot-interruption-exporter
+          image: spot-interruption-exporter
           resources:
             requests:
               memory: "50Mi"

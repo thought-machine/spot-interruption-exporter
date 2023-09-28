@@ -1,5 +1,5 @@
 /**
- * GCP Spot Interruption Notifications
+ * GCP Spot Interruption Exporter
  * =============
  *
  * Description
@@ -11,10 +11,9 @@
  * -----
  *
  * ```ts
- * module "spot_interruption_notifier" {
- *   source       = "terraform.external.thoughtmachine.io/internal/spot-interruption-handler"
- *   version      = "0.0.1"
- *                            
+ * module "spot_interruption_exporter" {
+ *   source       = "infra/gcp"
+ *
  *   project      = <target-cluster's-project>
  * }
  * ```
@@ -26,6 +25,10 @@
  *   * `google_pubsub_topic.instance_preemption`
  *   * `google_pubsub_subscription.instance_preemption`
  *   * `google_logging_project_sink.preemption_logs`
+ *   * `google_pubsub_topic_iam_binding.binding`
+ *   * `google_service_account.spot_interruption_`
+ *   * `google_service_account_iam_binding.workload_identity_user`
+ *   * `google_project_iam_binding.pubsub_subscriber`
 **/
 
 locals {
@@ -40,6 +43,14 @@ resource "google_pubsub_topic" "instance_preemption" {
   message_retention_duration = "600s"
 }
 
+resource "google_pubsub_topic_iam_binding" "binding" {
+  project = var.project
+  topic = google_pubsub_topic.instance_preemption.name
+  role = "roles/pubsub.publisher"
+  members = [
+    google_logging_project_sink.preemption_logs.writer_identity,
+  ]
+}
 
 resource "google_logging_project_sink" "preemption_logs" {
   name    = var.log_sink_name
@@ -62,15 +73,15 @@ resource "google_pubsub_subscription" "instance_preemption" {
 
 }
 
-resource "google_service_account" "spot_interruption_notifier" {
+resource "google_service_account" "spot_interruption_exporter" {
   account_id   = var.service_account_id
-  display_name = "Spot Interruption Notifier"
+  display_name = "Spot Interruption Exporter"
   project      = var.project
 }
 
 
 resource "google_service_account_iam_binding" "workload_identity_user" {
-  service_account_id = google_service_account.spot_interruption_notifier.name
+  service_account_id = google_service_account.spot_interruption_exporter.name
   role               = "roles/iam.workloadIdentityUser"
 
   members = [
@@ -78,11 +89,11 @@ resource "google_service_account_iam_binding" "workload_identity_user" {
   ]
 }
 
-resource "google_service_account_iam_binding" "pubsub_subsriber" {
-  service_account_id = google_service_account.spot_interruption_notifier.name
+resource "google_project_iam_binding" "pubsub_subscriber" {
+  project = var.project
   role               = "roles/pubsub.subscriber"
 
   members = [
-    local.service_account_member,
+    google_service_account.spot_interruption_exporter.member,
   ]
 }

@@ -3,4 +3,4 @@ kind: ServiceAccount
 metadata:
   name: -sa
   annotations:
-    iam.gke.io/gcp-service-account: spot-interruption-notifier@dev.iam.gserviceaccount.com
+    iam.gke.io/gcp-service-account: spot-interruption-exporter@dev.iam.gserviceaccount.com

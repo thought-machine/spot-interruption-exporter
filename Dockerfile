@@ -13,7 +13,7 @@ WORKDIR /build
 COPY . .
 
 # Build the binary
-RUN CGO_ENABLED=0 GOOS=linux go build -o spot-interruption-notifier
+RUN CGO_ENABLED=0 GOOS=linux go build -o spot-interruption-exporter
 ############################
 # STAGE 2
 ############################
@@ -23,7 +23,7 @@ FROM scratch
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
 # Copies the built binary over from the previous stage
-COPY --from=builder /build/spot-interruption-notifier /go/bin/spot-interruption-notifier
+COPY --from=builder /build/spot-interruption-exporter /go/bin/spot-interruption-exporter
 
 # Run the binary
-ENTRYPOINT ["/go/bin/spot-interruption-notifier"]
+ENTRYPOINT ["/go/bin/spot-interruption-exporter"]

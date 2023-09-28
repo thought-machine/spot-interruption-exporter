@@ -13,4 +13,4 @@ patches:
   - path: sa-patch.yaml
 
 resources:
-  - git@github.com:thought-machine/spot-interruption-notifier.git//kustomize
+  - git@github.com:thought-machine/spot-interruption-exporter.git//kustomize
