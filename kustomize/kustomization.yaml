@@ -6,7 +6,7 @@ namePrefix: spot-interruption-exporter
 images:
   - name: spot-interruption-exporter
     newName: ghcr.io/thought-machine/spot-interruption-exporter
-    newTag: sha-2d14eb4
+    newTag: sha-5543ca4
 
 commonLabels:
   name: spot-interruption-exporter

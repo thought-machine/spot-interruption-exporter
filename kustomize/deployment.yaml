@@ -11,6 +11,10 @@ spec:
         fsGroup: 65534
         runAsUser: 37100
         runAsGroup: 37100
+      volumes:
+        - name: app-config
+          configMap:
+            name: -configmap
       containers:
         - name: spot-interruption-exporter
           image: spot-interruption-exporter
@@ -21,9 +25,12 @@ spec:
             limits:
               memory: "250Mi"
               cpu: ".5"
-          envFrom:
-            - configMapRef:
-                name: terminator-config
+          volumeMounts:
+            - name: app-config
+              mountPath: /etc/config
+          env:
+            - name: "CONFIG_PATH"
+              value: "/etc/config/config.yaml"
           ports:
             - containerPort: 8090
               name: metrics
