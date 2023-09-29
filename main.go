@@ -23,8 +23,8 @@ import (
 var (
 	interruptionEvents = promauto.NewCounterVec(prometheus.CounterOpts{
 		Name: "interruption_events_total",
-		Help: "The total number of interruption events for a given cluster",
-	}, []string{"kubernetes_cluster", "resource_id"})
+		Help: "The total number of spot interruptions for a given cluster",
+	}, []string{"kubernetes_cluster"})
 )
 
 func main() {
@@ -56,14 +56,14 @@ func main() {
 	go n.Receive(ctx, e)
 
 	c := cache.NewCacheWithTTL(time.Minute * 10)
-	sugar.Info("listening for preemption events")
 	for event := range e {
 		// this ensures we do not handle a duplicate message in the event pubsub sends it more than once
 		if exists := c.Exists(event.MessageID); exists {
 			continue
 		}
 		c.Insert(event.MessageID)
-		interruptionEvents.WithLabelValues(cfg.ClusterName, event.ResourceID).Inc()
+		interruptionEvents.WithLabelValues(cfg.ClusterName).Inc()
+		sugar.With("resource_id", event.ResourceID).Info("interrupted")
 	}
 }
 

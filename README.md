@@ -1,5 +1,5 @@
 # spot-interruption-exporter
-Publishes a prometheus metric `interruption_events_total` whenever a spot instance has been interrupted.
+Publishes a prometheus metric `interruption_events_total` that increments by 1 whenever a spot instance has been interrupted.
 
 This is a very helpful metric, as it 
 
@@ -9,7 +9,7 @@ This is a very helpful metric, as it
 
 - can aid in seeing how much more susceptible single-zone clusters are to interruption
 
-- can be used as a signal on whether or not to promote spot instances to other environments
+- can be used as a signal on whether to promote spot instances to other environments
 
 The app can be expanded to support other cloud providers, but currently is only built for GCP.
 
