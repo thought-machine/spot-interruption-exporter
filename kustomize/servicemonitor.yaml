@@ -10,4 +10,4 @@ spec:
       - spot-interruption-exporter
   selector:
     matchLabels:
-      name: spot-interruption-exporter
+      app: spot-interruption-exporter
