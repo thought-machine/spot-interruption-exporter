@@ -6,7 +6,6 @@ import (
 	"context"
 	"fmt"
 	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 	"log"
 	"net/http"
 	"os"
@@ -35,7 +34,6 @@ func main() {
 
 	loggerConfig := zap.NewProductionConfig()
 	loggerConfig.EncoderConfig.TimeKey = "time"
-	loggerConfig.EncoderConfig.EncodeTime = zapcore.RFC3339TimeEncoder
 	logger, err := loggerConfig.Build()
 	if err != nil {
 		log.Fatalf("failed to initialize zap logger: %v", err)
