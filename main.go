@@ -59,13 +59,15 @@ func main() {
 
 	c := cache.NewCacheWithTTL(time.Minute * 10)
 	for event := range e {
+		s := sugar.With("message_id", event.MessageID, "resource_id", event.ResourceID)
 		// this ensures we do not handle a duplicate message in the event pubsub sends it more than once
 		if exists := c.Exists(event.MessageID); exists {
+			s.Debug("handled duplicate message")
 			continue
 		}
 		c.Insert(event.MessageID)
 		interruptionEvents.WithLabelValues(cfg.ClusterName).Inc()
-		sugar.With("resource_id", event.ResourceID).Info("interrupted")
+		s.Info("interrupted")
 	}
 }
 
