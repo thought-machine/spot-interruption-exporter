@@ -22,6 +22,7 @@ The app reads in a config file from `$CONFIG_PATH` with the structure below.
 
 ```yaml
 cloud_provider: gcp 
+log_level: info
 gcp:
   project_name: example
   subscription_name: spot-interruption-exporter-subscription 

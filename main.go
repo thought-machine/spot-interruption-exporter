@@ -32,18 +32,21 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
+	cfg, err := LoadConfig(os.Getenv("CONFIG_PATH"))
+	if err != nil {
+		panic(err)
+	}
+
 	loggerConfig := zap.NewProductionConfig()
+	if err := configureLogLevel(&loggerConfig, cfg.LogLevel); err != nil {
+		panic(fmt.Sprintf("failed to parse log level: %s", err.Error()))
+	}
 	loggerConfig.EncoderConfig.TimeKey = "time"
 	logger, err := loggerConfig.Build()
 	if err != nil {
 		log.Fatalf("failed to initialize zap logger: %v", err)
 	}
 	sugar := logger.Sugar()
-	cfg, err := LoadConfig(os.Getenv("CONFIG_PATH"))
-	if err != nil {
-		sugar.Fatal(err)
-	}
-
 	http.Handle(cfg.Prometheus.Path, promhttp.Handler())
 	go func() {
 		sugar.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", cfg.Prometheus.Port), nil))
@@ -86,4 +89,17 @@ func createCSPNotifier(ctx context.Context, log *zap.SugaredLogger, cfg Config) 
 	default:
 		return nil, fmt.Errorf("unknown or unsupported cloud provider: %s", cfg.Provider)
 	}
+}
+
+func configureLogLevel(lCfg *zap.Config, logLevel string) error {
+	if len(logLevel) == 0 {
+		return nil
+	}
+
+	l, err := zap.ParseAtomicLevel(logLevel)
+	if err != nil {
+		return err
+	}
+	lCfg.Level = l
+	return nil
 }

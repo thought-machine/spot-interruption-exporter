@@ -18,6 +18,7 @@ type PrometheusConfig struct {
 type Config struct {
 	Provider    string    `yaml:"cloud_provider"`
 	ClusterName string    `yaml:"cluster_name"`
+	LogLevel    string    `yaml:"log_level"`
 	GCP         GCPConfig `yaml:"gcp"`
 	Prometheus  PrometheusConfig
 }
