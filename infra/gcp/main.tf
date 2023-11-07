@@ -28,7 +28,7 @@
  *   * `google_pubsub_topic_iam_binding.binding`
  *   * `google_service_account.spot_interruption_`
  *   * `google_service_account_iam_binding.workload_identity_user`
- *   * `google_project_iam_binding.pubsub_subscriber`
+ *   * `google_project_iam_member.pubsub_subscriber`
 **/
 
 locals {
@@ -89,7 +89,7 @@ resource "google_service_account_iam_binding" "workload_identity_user" {
   ]
 }
 
-resource "google_project_iam_binding" "pubsub_subscriber" {
+resource "google_project_iam_member" "pubsub_subscriber" {
   project = var.project
   role               = "roles/pubsub.subscriber"
 
