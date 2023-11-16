@@ -93,7 +93,5 @@ resource "google_project_iam_member" "pubsub_subscriber" {
   project = var.project
   role               = "roles/pubsub.subscriber"
 
-  members = [
-    google_service_account.spot_interruption_exporter.member,
-  ]
+  member  = google_service_account.spot_interruption_exporter.member
 }
