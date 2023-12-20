@@ -17,18 +17,6 @@
  *   project      = <target-cluster's-project>
  * }
  * ```
- *
- * Deployment
- * ----------
- *
- * Deploying this module will create the following resources:
- *   * `google_pubsub_topic.instance_preemption`
- *   * `google_pubsub_subscription.instance_preemption`
- *   * `google_logging_project_sink.preemption_logs`
- *   * `google_pubsub_topic_iam_binding.binding`
- *   * `google_service_account.spot_interruption_`
- *   * `google_service_account_iam_binding.workload_identity_user`
- *   * `google_project_iam_member.pubsub_subscriber`
 **/
 
 terraform {
@@ -54,7 +42,7 @@ locals {
 
 
 module "interruption_events" {
-  source = "./module"
+  source = "./event-forwarder"
 
   log_sink_filter   = "protoPayload.methodName=\"compute.instances.preempted\""
   log_sink_name     = "sie-interruption-sink"
@@ -64,7 +52,7 @@ module "interruption_events" {
 }
 
 module "creation_events" {
-  source = "./module"
+  source = "./event-forwarder"
 
   log_sink_filter   = "protoPayload.serviceName=\"compute.googleapis.com\" AND protoPayload.methodName=\"v1.compute.instances.insert\" AND protoPayload.request.labels.key=\"goog-k8s-cluster-name\""
   log_sink_name     = "sie-creation-sink"

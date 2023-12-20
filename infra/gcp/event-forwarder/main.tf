@@ -1,4 +1,3 @@
-
 resource "google_pubsub_topic" "topic" {
   name    = var.topic_name
   project = var.project
@@ -32,6 +31,5 @@ resource "google_pubsub_subscription" "subscription" {
 
   message_retention_duration = "600s"
   retain_acked_messages      = false
-
 }
 
