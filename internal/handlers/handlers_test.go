@@ -7,8 +7,8 @@ import (
 	"github.com/thought-machine/spot-interruption-exporter/internal/handlers/test_data"
 	"github.com/thought-machine/spot-interruption-exporter/internal/metrics/mocks"
 	"go.uber.org/zap"
+	"sync"
 	"testing"
-	"time"
 )
 
 type HandlersTestSuite struct {
@@ -46,9 +46,13 @@ func (suite *HandlersTestSuite) TestHandleInterruptionEvents() {
 	}
 	instanceToClusterMappings := cache.NewCacheWithTTLFrom(cache.NoExpiration, initialInstances)
 	interruptions := make(chan *gcppubsub.Message)
-	go HandleInterruptionEvents(interruptions, instanceToClusterMappings, suite.mockMetrics, suite.l)
+
+	wg := &sync.WaitGroup{}
+	wg.Add(1)
+	go HandleInterruptionEvents(interruptions, instanceToClusterMappings, suite.mockMetrics, suite.l, wg)
 	interruptions <- mockInterruptionMessage
-	interruptions <- mockInterruptionMessage
+	close(interruptions)
+	wg.Wait()
 }
 
 func (suite *HandlersTestSuite) TestHandleCreationEvents() {
@@ -59,16 +63,19 @@ func (suite *HandlersTestSuite) TestHandleCreationEvents() {
 	}
 	instanceToClusterMappings := cache.NewCacheWithTTLFrom(cache.NoExpiration, initialInstances)
 	additions := make(chan *gcppubsub.Message)
-	go HandleCreationEvents(additions, instanceToClusterMappings, suite.l)
+	wg := &sync.WaitGroup{}
+	wg.Add(1)
+	go HandleCreationEvents(additions, instanceToClusterMappings, suite.l, wg)
 	additions <- mockCreationMessage
+	close(additions)
+	wg.Wait()
 	resourceName := "projects/123456789/zones/europe-west1-c/instances/fake-resource"
 
-	suite.Eventually(func() bool {
-		cluster, ok := instanceToClusterMappings.Get(resourceName)
-		return ok && fakeClusterName == cluster
-	}, time.Second, time.Millisecond)
+	cluster, ok := instanceToClusterMappings.Get(resourceName)
+	suite.True(ok)
+	suite.Equal(fakeClusterName, cluster)
 
-	cluster, ok := instanceToClusterMappings.Get(fakeInstanceName)
+	cluster, ok = instanceToClusterMappings.Get(fakeInstanceName)
 	suite.True(ok)
 	suite.Equal(fakeClusterName, cluster)
 }
