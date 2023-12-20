@@ -34,6 +34,7 @@ func (suite *HandlersTestSuite) SetupSuite() {
 	suite.NoError(err)
 	suite.l = l.Sugar()
 }
+
 func TestHandlersTestSuite(t *testing.T) {
 	suite.Run(t, new(HandlersTestSuite))
 }

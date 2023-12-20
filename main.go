@@ -5,13 +5,13 @@ package main
 import (
 	gcppubsub "cloud.google.com/go/pubsub"
 	"context"
-	"fmt"
 	"github.com/thought-machine/spot-interruption-exporter/internal/cache"
 	"github.com/thought-machine/spot-interruption-exporter/internal/compute"
 	"github.com/thought-machine/spot-interruption-exporter/internal/events"
 	"github.com/thought-machine/spot-interruption-exporter/internal/handlers"
 	"github.com/thought-machine/spot-interruption-exporter/internal/metrics"
 	"go.uber.org/zap"
+	"log"
 	"os"
 	"sync"
 )
@@ -23,12 +23,12 @@ func main() {
 
 	cfg, err := LoadConfig(os.Getenv("CONFIG_PATH"))
 	if err != nil {
-		panic(err)
+		log.Fatalf("failed to load app configuration: %s", err.Error())
 	}
 
 	log := configureLogger(cfg)
 	m := metrics.NewClient(cfg.Prometheus.Path, cfg.Prometheus.Port, log)
-	go m.RegisterHTTPHandler()
+	m.RegisterHTTPHandler()
 
 	interruptionEvents, err := createSubscriptionClient(ctx, log, cfg.Project, cfg.PubSub.InstanceInterruptionSubscriptionName)
 	if err != nil {
@@ -85,15 +85,14 @@ func createSubscriptionClient(ctx context.Context, log *zap.SugaredLogger, proje
 func configureLogger(cfg Config) *zap.SugaredLogger {
 	loggerConfig := zap.NewProductionConfig()
 	if err := configureLogLevel(&loggerConfig, cfg.LogLevel); err != nil {
-		panic(fmt.Sprintf("failed to parse log level: %s", err.Error()))
+		log.Fatalf("failed to parse log level: %s", err.Error())
 	}
 	loggerConfig.EncoderConfig.TimeKey = "time"
 	logger, err := loggerConfig.Build()
 	if err != nil {
-		panic(fmt.Sprintf("failed to initialize zap logger: %v", err))
+		log.Fatalf("failed to initialize zap logger: %v", err)
 	}
-	log := logger.Sugar()
-	return log
+	return logger.Sugar()
 }
 
 func configureLogLevel(lCfg *zap.Config, logLevel string) error {

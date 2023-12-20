@@ -25,20 +25,19 @@ type instanceCreationEvent struct {
 }
 
 // HandleCreationEvents reads from additions and adds the instance ID and corresponding cluster to m
-func HandleCreationEvents(additions chan *gcppubsub.Message, m cache.Cache, l *zap.SugaredLogger) {
+func HandleCreationEvents(additions chan *gcppubsub.Message, instanceToClusterMappings cache.Cache, l *zap.SugaredLogger) {
 	for addition := range additions {
 		a, err := messageToInstanceCreationEvent(addition)
 		if err != nil {
 			l.Warnf("failed to convert pubsub message to creation event: %s", err.Error())
 		}
-		s := l.With("message_id", a.MessageID, "resource_id", a.ResourceID, "kubernetes_cluster", a.ClusterName)
-		m.Insert(a.ResourceID, a.ClusterName)
-		s.Info("added")
+		l.With("message_id", a.MessageID, "resource_id", a.ResourceID, "kubernetes_cluster", a.ClusterName).Info("added")
+		instanceToClusterMappings.Insert(a.ResourceID, a.ClusterName)
 	}
 }
 
 // HandleInterruptionEvents reads from interruptions and increases the interruption event counter of metrics accordingly
-func HandleInterruptionEvents(interruptions chan *gcppubsub.Message, m cache.Cache, metrics metrics.Client, l *zap.SugaredLogger) {
+func HandleInterruptionEvents(interruptions chan *gcppubsub.Message, instanceToClusterMappings cache.Cache, metrics metrics.Client, l *zap.SugaredLogger) {
 	messageCache := cache.NewCacheWithTTL(time.Minute * 10)
 	for interruption := range interruptions {
 		e, err := messageToInstanceInterruptionEvent(interruption)
@@ -53,13 +52,13 @@ func HandleInterruptionEvents(interruptions chan *gcppubsub.Message, m cache.Cac
 			continue
 		}
 		messageCache.Insert(e.MessageID, "")
-		clusterName, ok := m.Get(e.ResourceID)
+		clusterName, ok := instanceToClusterMappings.Get(e.ResourceID)
 		if !ok {
 			s.Warnf("failed to determine cluster the instance (%s) belongs to", e.ResourceID)
 			return
 		}
 		expireAfter := time.Second * 30
-		m.SetExpiration(e.ResourceID, expireAfter)
+		instanceToClusterMappings.SetExpiration(e.ResourceID, expireAfter)
 		s.Debugf("%s will no longer be tracked after %s", e.ResourceID, expireAfter)
 
 		s.Info("interrupted")
