@@ -16,38 +16,36 @@ func TestCacheTestSuite(t *testing.T) {
 }
 
 func (suite *CacheTestSuite) TestNewCacheWithTTL() {
-	expirationDuration := time.Millisecond * 500
-	c := NewCacheWithTTL(expirationDuration * 2)
+	expirationDuration := time.Millisecond * 250
+	c := NewCacheWithTTL(expirationDuration)
 	c.Insert("key", "")
-	suite.Eventually(func() bool {
-		return c.Exists("key")
-	}, time.Second*5, expirationDuration)
+	suite.True(c.Exists("key"))
 	suite.Eventually(func() bool {
 		return !c.Exists("key")
-	}, time.Second*2, expirationDuration)
+	}, time.Second*2, time.Millisecond*100)
 }
 
 func (suite *CacheTestSuite) TestNewCacheWithTTLFrom() {
-	expirationDuration := NoExpiration
 	existingItemKey := "item"
 	existingItemValue := "value"
 	existing := map[string]string{
 		existingItemKey: existingItemValue,
 	}
-	c := NewCacheWithTTLFrom(expirationDuration, existing)
-	v, ok := c.Get(existingItemKey)
-	suite.True(ok)
+	c := NewCacheWithTTLFrom(NoExpiration, existing)
+	v, err := c.Get(existingItemKey)
+	suite.NoError(err)
 	suite.Equal(existingItemValue, v)
 }
 
 func (suite *CacheTestSuite) TestSetExpiration() {
 	itemKey := "item"
 	c := NewCacheWithTTL(NoExpiration)
-	c.SetExpiration("non-existent", NoExpiration)
+
+	suite.Error(c.SetExpiration("non-existent", NoExpiration))
+
 	c.Insert(itemKey, "")
-	c.SetExpiration(itemKey, time.Nanosecond)
+	suite.NoError(c.SetExpiration(itemKey, time.Nanosecond))
 	suite.Eventually(func() bool {
-		_, ok := c.Get(itemKey)
-		return !ok
+		return !c.Exists(itemKey)
 	}, time.Second*2, time.Microsecond)
 }

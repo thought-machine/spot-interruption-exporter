@@ -75,7 +75,7 @@ func createComputeClient(ctx context.Context, log *zap.SugaredLogger, cfg Config
 }
 
 func createSubscriptionClient(ctx context.Context, log *zap.SugaredLogger, projectID, subscriptionName string) (events.Subscription, error) {
-	return events.NewPubSubNotifier(ctx, &events.NewPubSubNotifierInput{
+	return events.NewPubSubNotifier(ctx, &events.PubSubNotifierInput{
 		Logger:           log,
 		ProjectID:        projectID,
 		SubscriptionName: subscriptionName,

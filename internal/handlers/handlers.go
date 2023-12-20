@@ -55,13 +55,16 @@ func HandleInterruptionEvents(interruptions chan *gcppubsub.Message, instanceToC
 			continue
 		}
 		messageCache.Insert(e.MessageID, "")
-		clusterName, ok := instanceToClusterMappings.Get(e.ResourceID)
-		if !ok {
-			s.Warnf("failed to determine cluster the instance (%s) belongs to", e.ResourceID)
+		clusterName, err := instanceToClusterMappings.Get(e.ResourceID)
+		if err != nil {
+			s.Warnf("failed to determine cluster the instance (%s) belongs to: %s", e.ResourceID, err.Error())
 			return
 		}
 		expireAfter := time.Second * 30
-		instanceToClusterMappings.SetExpiration(e.ResourceID, expireAfter)
+		err = instanceToClusterMappings.SetExpiration(e.ResourceID, expireAfter)
+		if err != nil {
+			s.Warnf("failed to remove instance from mapping of instances to clusters: %s", err.Error())
+		}
 		s.Debugf("%s will no longer be tracked after %s", e.ResourceID, expireAfter)
 
 		s.Info("interrupted")

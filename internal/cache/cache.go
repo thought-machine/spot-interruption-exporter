@@ -2,6 +2,8 @@
 package cache
 
 import (
+	"fmt"
+	"go.uber.org/zap"
 	"time"
 
 	gocache "github.com/patrickmn/go-cache"
@@ -14,23 +16,25 @@ type Cache interface {
 	// Exists proves the existence or lack-thereof of the item k in the cache
 	Exists(k string) (exists bool)
 	// Get returns the value of the key in the cache
-	Get(k string) (value string, ok bool)
+	Get(k string) (value string, err error)
 	// SetExpiration sets the expiration on the given item k without updating the value
-	SetExpiration(k string, t time.Duration)
+	SetExpiration(k string, t time.Duration) error
 }
 
 const NoExpiration = gocache.NoExpiration
 
 type cache struct {
-	u *gocache.Cache
+	u   *gocache.Cache
+	log *zap.SugaredLogger
 }
 
-func (c *cache) SetExpiration(k string, t time.Duration) {
+func (c *cache) SetExpiration(k string, t time.Duration) error {
 	e, ok := c.u.Get(k)
 	if !ok {
-		return
+		return fmt.Errorf("cannot update expiration for item (%s) that does not exist", k)
 	}
 	c.u.Set(k, e, t)
+	return nil
 }
 
 func (c *cache) Insert(k string, v string) {
@@ -42,13 +46,16 @@ func (c *cache) Exists(k string) (exists bool) {
 	return exists
 }
 
-func (c *cache) Get(k string) (value string, ok bool) {
+func (c *cache) Get(k string) (value string, err error) {
 	v, ok := c.u.Get(k)
 	if !ok {
-		return "", ok
+		return "", fmt.Errorf("key %s not found in cache", k)
 	}
 	value, ok = v.(string)
-	return value, ok
+	if !ok {
+		return "", fmt.Errorf("unexpected value for key %s: %T, expected string", k, value)
+	}
+	return value, nil
 }
 
 // NewCacheWithTTL creates a new cache with ttl of t
@@ -58,9 +65,9 @@ func NewCacheWithTTL(t time.Duration) Cache {
 	}
 }
 
-func NewCacheWithTTLFrom(t time.Duration, f map[string]string) Cache {
-	m := make(map[string]gocache.Item, len(f))
-	for k, v := range f {
+func NewCacheWithTTLFrom(t time.Duration, defaultItems map[string]string) Cache {
+	m := make(map[string]gocache.Item, len(defaultItems))
+	for k, v := range defaultItems {
 		m[k] = gocache.Item{
 			Object:     v,
 			Expiration: t.Nanoseconds(),
