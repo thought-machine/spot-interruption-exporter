@@ -5,21 +5,21 @@ import (
 	"os"
 )
 
-type GCPConfig struct {
-	PubSubSubscriptionName string `yaml:"subscription_name"`
-	Project                string `yaml:"project_name"`
-}
-
 type PrometheusConfig struct {
 	Path string
 	Port string
 }
 
+type PubSub struct {
+	InstanceCreationSubscriptionName     string `yaml:"instance_creation_subscription_name"`
+	InstanceInterruptionSubscriptionName string `yaml:"instance_interruption_subscription_name"`
+}
+
 type Config struct {
-	Provider    string    `yaml:"cloud_provider"`
-	ClusterName string    `yaml:"cluster_name"`
-	LogLevel    string    `yaml:"log_level"`
-	GCP         GCPConfig `yaml:"gcp"`
+	PubSub      PubSub `yaml:"pubsub"`
+	Project     string `yaml:"project_name"`
+	ClusterName string `yaml:"cluster_name"`
+	LogLevel    string `yaml:"log_level"`
 	Prometheus  PrometheusConfig
 }
 
