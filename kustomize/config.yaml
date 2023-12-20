@@ -1,8 +1,8 @@
-cloud_provider: gcp
-cluster_name: example-cluster
-gcp:
-  project_name: example-project
-  subscription_name: spot-interruption-exporter-subscription
+log_level: debug
+project_name: example-project
+pubsub:
+  instance_creation_subscription_name: sie-creation-subscription
+  instance_interruption_subscription_name: sie-interruption-subscription
 prometheus:
   port: 8090
   path: /metrics

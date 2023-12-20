@@ -1,0 +1,16 @@
+{
+  "protoPayload": {
+    "@type": "type.googleapis.com/google.cloud.audit.AuditLog",
+    "serviceName": "compute.googleapis.com",
+    "methodName": "v1.compute.instances.insert",
+    "resourceName": "projects/123456789/zones/europe-west1-c/instances/fake-resource",
+    "request": {
+      "labels": [
+        {
+          "key": "goog-k8s-cluster-name",
+          "value": "fake-cluster"
+        }
+      ]
+    }
+  }
+}
