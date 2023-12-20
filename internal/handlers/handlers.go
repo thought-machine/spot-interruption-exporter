@@ -56,12 +56,12 @@ func HandleInterruptionEvents(interruptions chan *gcppubsub.Message, m cache.Cac
 		clusterName, ok := m.Get(e.ResourceID)
 		if !ok {
 			s.Warnf("failed to determine cluster the instance (%s) belongs to", e.ResourceID)
-			clusterName = "unspecified"
-		} else {
-			expireAfter := time.Second * 30
-			m.SetExpiration(e.ResourceID, expireAfter)
-			s.Debugf("%s will no longer be tracked after %s", e.ResourceID, expireAfter)
+			return
 		}
+		expireAfter := time.Second * 30
+		m.SetExpiration(e.ResourceID, expireAfter)
+		s.Debugf("%s will no longer be tracked after %s", e.ResourceID, expireAfter)
+
 		s.Info("interrupted")
 		metrics.IncreaseInterruptionEventCounter(clusterName)
 	}
