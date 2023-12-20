@@ -18,32 +18,32 @@ var (
 	}, []string{"kubernetes_cluster"})
 )
 
+// Client provides methods for modifying metrics
 type Client interface {
+	// IncreaseInterruptionEventCounter increases the interruption metric by one with a label value of cluster
 	IncreaseInterruptionEventCounter(cluster string)
-	RegisterHTTPHandler()
+	// ServeMetrics serves metrics on the specified port and path of the given
+	ServeMetrics(path, port string)
 }
 
 func (m *metrics) IncreaseInterruptionEventCounter(cluster string) {
 	interruptionEvents.WithLabelValues(cluster).Inc()
 }
 
-func (m *metrics) RegisterHTTPHandler() {
-	http.Handle(m.path, promhttp.Handler())
+func (m *metrics) ServeMetrics(path, port string) {
+	http.Handle(path, promhttp.Handler())
 	go func() {
-		log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", m.port), nil))
+		log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), nil))
 	}()
 }
 
-func NewClient(path, port string, log *zap.SugaredLogger) Client {
+// NewClient creates a new metrics client. To actually start the metrics server, call the Client's ServeMetrics  method.
+func NewClient(log *zap.SugaredLogger) Client {
 	return &metrics{
-		path: path,
-		port: port,
-		log:  log,
+		log: log,
 	}
 }
 
 type metrics struct {
-	path string
-	port string
-	log  *zap.SugaredLogger
+	log *zap.SugaredLogger
 }

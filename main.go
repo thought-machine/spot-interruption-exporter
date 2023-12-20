@@ -26,28 +26,28 @@ func main() {
 		log.Fatalf("failed to load app configuration: %s", err.Error())
 	}
 
-	log := configureLogger(cfg)
-	m := metrics.NewClient(cfg.Prometheus.Path, cfg.Prometheus.Port, log)
-	m.RegisterHTTPHandler()
+	logger := configureLogger(cfg)
+	m := metrics.NewClient(logger)
+	m.ServeMetrics(cfg.Prometheus.Path, cfg.Prometheus.Port)
 
-	interruptionEvents, err := createSubscriptionClient(ctx, log, cfg.Project, cfg.PubSub.InstanceInterruptionSubscriptionName)
+	interruptionEvents, err := createSubscriptionClient(ctx, logger, cfg.Project, cfg.PubSub.InstanceInterruptionSubscriptionName)
 	if err != nil {
-		log.Fatal("failed to init instance interruption subscription: %s", err.Error())
+		logger.Fatal("failed to init instance interruption subscription: %s", err.Error())
 	}
 
-	creationEvents, err := createSubscriptionClient(ctx, log, cfg.Project, cfg.PubSub.InstanceCreationSubscriptionName)
+	creationEvents, err := createSubscriptionClient(ctx, logger, cfg.Project, cfg.PubSub.InstanceCreationSubscriptionName)
 	if err != nil {
-		log.Fatal("failed to init instance creation subscription: %s", err.Error())
+		logger.Fatal("failed to init instance creation subscription: %s", err.Error())
 	}
 
-	computeClient, err := createComputeClient(ctx, log, cfg)
+	computeClient, err := createComputeClient(ctx, logger, cfg)
 	if err != nil {
-		log.Fatal("failed to init compute client")
+		logger.Fatal("failed to init compute client")
 	}
 
 	initialInstances, err := computeClient.ListInstancesBelongingToKubernetesCluster(ctx)
 	if err != nil {
-		log.Fatal("failed to determine initial instances belonging to kubernetes clusters: %s", err.Error())
+		logger.Fatal("failed to determine initial instances belonging to kubernetes clusters: %s", err.Error())
 	}
 
 	interruptions := make(chan *gcppubsub.Message, 30)
@@ -59,11 +59,11 @@ func main() {
 
 	go interruptionEvents.Receive(ctx, interruptions)
 	go creationEvents.Receive(ctx, additions)
-	log.Info("listening for instance creation & interruption events")
+	logger.Info("listening for instance creation & interruption events")
 
-	go handlers.HandleInterruptionEvents(interruptions, instanceToClusterMappings, m, log, wg)
-	go handlers.HandleCreationEvents(additions, instanceToClusterMappings, log, wg)
-	log.Info("handlers started for instance creation & interruption events")
+	go handlers.HandleInterruptionEvents(interruptions, instanceToClusterMappings, m, logger, wg)
+	go handlers.HandleCreationEvents(additions, instanceToClusterMappings, logger, wg)
+	logger.Info("handlers started for instance creation & interruption events")
 	wg.Wait()
 }
 

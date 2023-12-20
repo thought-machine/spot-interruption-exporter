@@ -72,12 +72,12 @@ func (suite *HandlersTestSuite) TestHandleCreationEvents() {
 	wg.Wait()
 	resourceName := "projects/123456789/zones/europe-west1-c/instances/fake-resource"
 
-	cluster, ok := instanceToClusterMappings.Get(resourceName)
-	suite.True(ok)
+	cluster, err := instanceToClusterMappings.Get(resourceName)
+	suite.NoError(err)
 	suite.Equal(fakeClusterName, cluster)
 
-	cluster, ok = instanceToClusterMappings.Get(fakeInstanceName)
-	suite.True(ok)
+	cluster, err = instanceToClusterMappings.Get(fakeInstanceName)
+	suite.NoError(err)
 	suite.Equal(fakeClusterName, cluster)
 }
 
