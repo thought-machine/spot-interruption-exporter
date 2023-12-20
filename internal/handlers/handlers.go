@@ -10,6 +10,7 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/encoding/protojson"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -25,7 +26,8 @@ type instanceCreationEvent struct {
 }
 
 // HandleCreationEvents reads from additions and adds the instance ID and corresponding cluster to m
-func HandleCreationEvents(additions chan *gcppubsub.Message, instanceToClusterMappings cache.Cache, l *zap.SugaredLogger) {
+func HandleCreationEvents(additions chan *gcppubsub.Message, instanceToClusterMappings cache.Cache, l *zap.SugaredLogger, wg *sync.WaitGroup) {
+	defer wg.Done()
 	for addition := range additions {
 		a, err := messageToInstanceCreationEvent(addition)
 		if err != nil {
@@ -37,7 +39,8 @@ func HandleCreationEvents(additions chan *gcppubsub.Message, instanceToClusterMa
 }
 
 // HandleInterruptionEvents reads from interruptions and increases the interruption event counter of metrics accordingly
-func HandleInterruptionEvents(interruptions chan *gcppubsub.Message, instanceToClusterMappings cache.Cache, metrics metrics.Client, l *zap.SugaredLogger) {
+func HandleInterruptionEvents(interruptions chan *gcppubsub.Message, instanceToClusterMappings cache.Cache, metrics metrics.Client, l *zap.SugaredLogger, wg *sync.WaitGroup) {
+	defer wg.Done()
 	messageCache := cache.NewCacheWithTTL(time.Minute * 10)
 	for interruption := range interruptions {
 		e, err := messageToInstanceInterruptionEvent(interruption)

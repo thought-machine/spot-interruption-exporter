@@ -54,15 +54,15 @@ func main() {
 	additions := make(chan *gcppubsub.Message, 30)
 	instanceToClusterMappings := cache.NewCacheWithTTLFrom(cache.NoExpiration, initialInstances)
 
-	var wg sync.WaitGroup
-	wg.Add(1)
+	wg := &sync.WaitGroup{}
+	wg.Add(2)
 
 	go interruptionEvents.Receive(ctx, interruptions)
 	go creationEvents.Receive(ctx, additions)
 	log.Info("listening for instance creation & interruption events")
 
-	go handlers.HandleInterruptionEvents(interruptions, instanceToClusterMappings, m, log)
-	go handlers.HandleCreationEvents(additions, instanceToClusterMappings, log)
+	go handlers.HandleInterruptionEvents(interruptions, instanceToClusterMappings, m, log, wg)
+	go handlers.HandleCreationEvents(additions, instanceToClusterMappings, log, wg)
 	log.Info("handlers started for instance creation & interruption events")
 	wg.Wait()
 }
