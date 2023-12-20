@@ -4,7 +4,7 @@ variable "project" {
 }
 
 variable "topic_name" {
-  description = "The name of the topic interruption events will be published to"
+  description = "The name of the topic events will be published to"
   type        = string
 }
 
@@ -15,17 +15,10 @@ variable "subscription_name" {
 
 variable "log_sink_name" {
   description = "Name of the log sink"
-  type = string
+  type        = string
 }
 
 variable "log_sink_filter" {
   description = "Filter for the log sink"
-  type = string
-}
-
-variable "labels" {
-  description = "Labels to apply to all GCP resources created in this module"
-  default = {
-    "managed-by": "spot-interruption-exporter"
-  }
+  type        = string
 }

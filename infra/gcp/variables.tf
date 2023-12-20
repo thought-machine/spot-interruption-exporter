@@ -1,5 +1,5 @@
 variable "project" {
-  description = "The name of the project where the target clusters lives"
+  description = "The name of the project where the target clusters live."
   type        = string
 }
 
