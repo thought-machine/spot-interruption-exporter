@@ -11,7 +11,9 @@ type subscription struct {
 	log *zap.SugaredLogger
 }
 
+// Subscription provides a wrapper around a specific pubsub subscription
 type Subscription interface {
+	// Receive sends outstanding pubsub messages to event channel. It blocks until ctx is done, or the pubsub returns a non-retryable error.
 	Receive(ctx context.Context, event chan<- *gcppubsub.Message)
 }
 
@@ -20,27 +22,27 @@ func (s *subscription) Receive(ctx context.Context, event chan<- *gcppubsub.Mess
 		m.Ack()
 		event <- m
 	})
-	if err != nil {
-		s.log.Error(err)
-	}
 	close(event)
+	if err != nil {
+		s.log.Fatalf("unexpected interruption while handling messages from pubsub topic %s", err.Error())
+	}
 }
 
-// NewPubSubNotifierInput defines all required fields to create a PubSubNotifier
-type NewPubSubNotifierInput struct {
+// PubSubNotifierInput defines all required fields to create a PubSubNotifier
+type PubSubNotifierInput struct {
 	Logger           *zap.SugaredLogger
 	ProjectID        string
 	SubscriptionName string
 }
 
-// NewPubSubNotifier receives messages from the spot-instances-preemption-events subscription
-func NewPubSubNotifier(ctx context.Context, input *NewPubSubNotifierInput) (Subscription, error) {
+// NewPubSubNotifier returns a client that provides wrappers around the specified pubsub subscription
+func NewPubSubNotifier(ctx context.Context, input *PubSubNotifierInput) (Subscription, error) {
 	client, err := gcppubsub.NewClient(ctx, input.ProjectID)
 	if err != nil {
 		return nil, err
 	}
 	return &subscription{
 		t:   client.Subscription(input.SubscriptionName),
-		log: input.Logger,
+		log: input.Logger.With(input.SubscriptionName),
 	}, nil
 }
