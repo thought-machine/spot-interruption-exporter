@@ -24,7 +24,7 @@ To work around this, the app keeps a mapping of compute instance ID to Kubernete
 
 A second log router + pubsub topic exist to inform the app of new instances that belong to a Kubernetes cluster. On app startup, the compute API is queried to seed the mapping.
 
-![spot-interruption-exporter-gcp](https://github.com/thought-machine/spot-interruption-exporter/assets/11613073/3aac4b50-8ff3-49b2-9edd-cf60da294e98)
+![spot-interruption-exporter-gcp](https://github.com/thought-machine/spot-interruption-exporter/assets/11613073/f2b01b81-1d13-4a2d-8303-9c842b51b3f7)
 
 ## Config
 
