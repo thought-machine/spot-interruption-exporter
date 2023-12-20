@@ -1,8 +1,7 @@
-cloud_provider: gcp
-cluster_name: development-us-west-2
-gcp:
-  project_name: dev
-  subscription_name: spot-interruption-exporter-subscription
+project_name: tm-gcp-emea-build-infra
+pubsub:
+  instance_creation_subscription_name: sie-creation-subscription
+  instance_interruption_subscription_name: sie-interruption-subscription
 prometheus:
   port: 1111
   path: /bespoke-metrics-path
