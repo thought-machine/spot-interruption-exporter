@@ -1,5 +1,5 @@
 # spot-interruption-exporter
-Publishes a prometheus metric `interruption_events_total` that increments by 1 whenever a spot instance has been interrupted.
+Publishes a prometheus metric `interruption_events_total` that increments by 1 whenever a spot instance has been preempted.
 
 This is a very helpful metric, as it 
 
@@ -13,22 +13,32 @@ This is a very helpful metric, as it
 
 The app can be expanded to support other cloud providers, but currently is only built for GCP.
 
-![spot-interruption-exporter-gcp](https://github.com/thought-machine/spot-interruption-exporter/assets/11613073/3aac4b50-8ff3-49b2-9edd-cf60da294e98)
+A single deployment of the infrastructure and app is intended to serve all Kubernetes clusters in a given project.
 
+## How it works
+Spot preemption events are emitted as an audit log that contain the compute instance ID. These audit logs are forwarded to a pubsub topic via GCP Log Sink. The app then subscribes to this topic and handles the interruption event. 
+
+The audit log for instance preemption does not contain information about the Kubernetes cluster the instance may or may not have been associated with. Since the node is already deleted by the time the preemption event is received, the compute API cannot be queried for more information. 
+
+To work around this, the app keeps a mapping of compute instance ID to Kubernetes cluster. It can then use this when processing preemption events to publish the correct `kubernetes_cluster` label on the metric.
+
+A second log router + pubsub topic exist to inform the app of new instances that belong to a Kubernetes cluster. On app startup, the compute API is queried to seed the mapping.
+
+![spot-interruption-exporter-gcp](https://github.com/thought-machine/spot-interruption-exporter/assets/11613073/3aac4b50-8ff3-49b2-9edd-cf60da294e98)
 
 ## Config
 
 The app reads in a config file from `$CONFIG_PATH` with the structure below.
 
 ```yaml
-cloud_provider: gcp 
-log_level: info
-gcp:
-  project_name: example
-  subscription_name: spot-interruption-exporter-subscription 
+log_level: debug
+project_name: example-project
+pubsub:
+  instance_creation_subscription_name: sie-creation-subscription
+  instance_interruption_subscription_name: sie-interruption-subscription
 prometheus:
-  port: 8090 
-  path: /metrics 
+  port: 8090
+  path: /metrics
 ```
 
 ## Deploying
@@ -52,43 +62,34 @@ $ terraform -chdir=infra/gcp destroy
 
 ## Verifying
 
-You can send a test message via
+You can send a test interruption message via
 ```bash
-$ gcloud pubsub topics publish spot-interruption-exporter-topic --message '{
+$ gcloud pubsub topics publish sie-interruption-topic --project <project> --message '{
   "protoPayload": {
     "@type": "type.googleapis.com/google.cloud.audit.AuditLog",
-    "status": {
-      "message": "Instance was preempted."
-    },
-    "authenticationInfo": {
-      "principalEmail": "system@google.com"
-    },
-    "serviceName": "compute.googleapis.com",
     "methodName": "compute.instances.preempted",
-    "resourceName": "projects/mock-project/zones/europe-west1-c/instances/mock-instance-spot-3706-5b909138-nr65",
+    "resourceName": "projects/mock-project/zones/europe-west1-c/instances/mock-instance-spot-3706-5b909138-nr65"
+  }
+}'
+```
+
+You can send a test instance creation message via 
+```bash
+$ gcloud pubsub topics publish sie-creation-topic --project <project> --message '{
+  "protoPayload": {
+    "@type": "type.googleapis.com/google.cloud.audit.AuditLog",
+    "serviceName": "compute.googleapis.com",
+    "methodName": "v1.compute.instances.insert",
+    "resourceName": "projects/123456789/zones/europe-west1-c/instances/fake-resource",
     "request": {
-      "@type": "type.googleapis.com/compute.instances.preempted"
+      "labels": [
+        {
+          "key": "goog-k8s-cluster-name",
+          "value": "fake-cluster"
+        }
+      ]
     }
-  },
-  "insertId": "qnwer3e38dfz",
-  "resource": {
-    "type": "gce_instance",
-    "labels": {
-      "instance_id": "184448819...",
-      "project_id": "mock-project",
-      "zone": "europe-west1-c"
-    }
-  },
-  "timestamp": "2023-09-16T10:42:31.325309Z",
-  "severity": "INFO",
-  "logName": "projects/mock-project/logs/cloudaudit.googleapis.com%2Fsystem_event",
-  "operation": {
-    "id": "systemevent-1694860946116....",
-    "producer": "compute.instances.preempted",
-    "first": true,
-    "last": true
-  },
-  "receiveTimestamp": "2023-09-16T10:42:31.782066320Z"
+  }
 }'
 ```
 
