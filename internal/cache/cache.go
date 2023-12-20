@@ -3,7 +3,6 @@ package cache
 
 import (
 	"fmt"
-	"go.uber.org/zap"
 	"time"
 
 	gocache "github.com/patrickmn/go-cache"
@@ -24,8 +23,7 @@ type Cache interface {
 const NoExpiration = gocache.NoExpiration
 
 type cache struct {
-	u   *gocache.Cache
-	log *zap.SugaredLogger
+	u *gocache.Cache
 }
 
 func (c *cache) SetExpiration(k string, t time.Duration) error {
