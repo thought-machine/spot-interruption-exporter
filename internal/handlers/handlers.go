@@ -13,12 +13,12 @@ import (
 	"time"
 )
 
-type InstanceInterruptionEvent struct {
+type instanceInterruptionEvent struct {
 	MessageID  string
 	ResourceID string
 }
 
-type InstanceCreationEvent struct {
+type instanceCreationEvent struct {
 	MessageID   string
 	ResourceID  string
 	ClusterName string
@@ -67,23 +67,23 @@ func HandleInterruptionEvents(interruptions chan *gcppubsub.Message, m cache.Cac
 	}
 }
 
-func messageToInstanceInterruptionEvent(m *gcppubsub.Message) (InstanceInterruptionEvent, error) {
+func messageToInstanceInterruptionEvent(m *gcppubsub.Message) (instanceInterruptionEvent, error) {
 	entry := auditdata.LogEntryData{}
 	err := protojson.UnmarshalOptions{DiscardUnknown: true}.Unmarshal(m.Data, &entry)
 	if err != nil {
-		return InstanceInterruptionEvent{}, err
+		return instanceInterruptionEvent{}, err
 	}
-	return InstanceInterruptionEvent{
+	return instanceInterruptionEvent{
 		MessageID:  m.ID,
 		ResourceID: entry.ProtoPayload.ResourceName,
 	}, nil
 }
 
-func messageToInstanceCreationEvent(m *gcppubsub.Message) (InstanceCreationEvent, error) {
+func messageToInstanceCreationEvent(m *gcppubsub.Message) (instanceCreationEvent, error) {
 	entry := auditdata.LogEntryData{}
 	err := protojson.UnmarshalOptions{DiscardUnknown: true}.Unmarshal(m.Data, &entry)
 	if err != nil {
-		return InstanceCreationEvent{}, err
+		return instanceCreationEvent{}, err
 	}
 	labels := entry.ProtoPayload.Request.GetFields()["labels"]
 	clusterName := "undefined"
@@ -95,7 +95,7 @@ func messageToInstanceCreationEvent(m *gcppubsub.Message) (InstanceCreationEvent
 			break
 		}
 	}
-	return InstanceCreationEvent{
+	return instanceCreationEvent{
 		MessageID:   m.ID,
 		ResourceID:  entry.ProtoPayload.ResourceName,
 		ClusterName: clusterName,
