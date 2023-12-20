@@ -51,6 +51,7 @@ func (suite *HandlersTestSuite) TestHandleInterruptionEvents() {
 	wg.Add(1)
 	go HandleInterruptionEvents(interruptions, instanceToClusterMappings, suite.mockMetrics, suite.l, wg)
 	interruptions <- mockInterruptionMessage
+	interruptions <- mockInterruptionMessage
 	close(interruptions)
 	wg.Wait()
 }
