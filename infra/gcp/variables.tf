@@ -1,24 +1,6 @@
 variable "project" {
-  description = "The name of the project where the target cluster lives."
+  description = "The name of the project where the target clusters lives"
   type        = string
-}
-
-variable "topic_name" {
-  description = "The name of the topic events will be published to"
-  type        = string
-  default     = "spot-interruption-exporter-topic"
-}
-
-variable "subscription_name" {
-  description = "The name of the subscription that is subscribed to the topic where events are published"
-  type        = string
-  default     = "spot-interruption-exporter-subscription"
-}
-
-variable "log_sink_name" {
-  description = "The name of the log sink that will sink events to the topic"
-  type        = string
-  default     = "spot-interruption-exporter-log-sink"
 }
 
 variable "service_account_id" {
