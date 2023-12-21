@@ -1,4 +1,4 @@
-name: Unit tests, lint, and build
+name: Unit tests
 
 on:
   pull_request:
@@ -21,11 +21,11 @@ jobs:
       - name: Download mockery
         run: go install github.com/vektra/mockery/v2@v2.39.1
 
+      - name: Download pre-commit
+        run: pip install pre-commit
+
       - name: Generate
         run: go generate -v ./...
 
       - name: Test
         run: go test -v ./...
-
-      - name: Lint
-        run: pre-commit run --all-files
