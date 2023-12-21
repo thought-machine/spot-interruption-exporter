@@ -19,11 +19,7 @@ jobs:
         run: go build -v ./...
 
       - name: Download mockery
-        uses: giantswarm/install-binary-action@v1.1.0
-        with:
-          binary: "mockery"
-          version: "v2.39.1"
-          download_url: "https://github.com/vektra/${binary}/releases/download/${version}/mockery_${version}_Linux_x86_64.tar.gz"
+        run: go install github.com/vektra/mockery/v2@v2.39.1
 
       - name: Generate
         run: go generate -v ./...
