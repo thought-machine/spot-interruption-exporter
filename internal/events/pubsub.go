@@ -1,8 +1,9 @@
 package events
 
 import (
-	gcppubsub "cloud.google.com/go/pubsub"
 	"context"
+
+	gcppubsub "cloud.google.com/go/pubsub"
 	"go.uber.org/zap"
 )
 

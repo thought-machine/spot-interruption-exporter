@@ -2,7 +2,7 @@
 
 Publishes a prometheus metric `interruption_events_total` that increments by 1 whenever a spot instance has been preempted.
 
-This is a very helpful metric, as it 
+This is a very helpful metric, as it
 
 - helps correlate workload issues with spot interruption times
 
@@ -18,9 +18,9 @@ A single deployment of the infrastructure and app is intended to serve all Kuber
 
 ## How it works
 
-Spot preemption events are emitted as an audit log that contain the compute instance ID. These audit logs are forwarded to a pubsub topic via GCP Log Sink. The app then subscribes to this topic and handles the interruption event. 
+Spot preemption events are emitted as an audit log that contain the compute instance ID. These audit logs are forwarded to a pubsub topic via GCP Log Sink. The app then subscribes to this topic and handles the interruption event.
 
-The audit log for instance preemption does not contain information about the Kubernetes cluster the instance may or may not have been associated with. Since the node is already deleted by the time the preemption event is received, the compute API cannot be queried for more information. 
+The audit log for instance preemption does not contain information about the Kubernetes cluster the instance may or may not have been associated with. Since the node is already deleted by the time the preemption event is received, the compute API cannot be queried for more information.
 
 To work around this, the app keeps a mapping of compute instance ID to Kubernetes cluster. It can then use this when processing preemption events to publish the correct `kubernetes_cluster` label on the metric.
 
@@ -77,7 +77,7 @@ $ gcloud pubsub topics publish sie-interruption-topic --project <project> --mess
 }'
 ```
 
-You can send a test instance creation message via 
+You can send a test instance creation message via
 ```bash
 $ gcloud pubsub topics publish sie-creation-topic --project <project> --message '{
   "protoPayload": {

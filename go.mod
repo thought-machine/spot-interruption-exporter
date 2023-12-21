@@ -3,20 +3,20 @@ module github.com/thought-machine/spot-interruption-exporter
 go 1.20
 
 require (
+	cloud.google.com/go/compute v1.20.1
 	cloud.google.com/go/pubsub v1.33.0
 	github.com/googleapis/google-cloudevents-go v0.7.0
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/prometheus/client_golang v1.16.0
 	github.com/stretchr/testify v1.8.3
-	go.uber.org/mock v0.3.0
 	go.uber.org/zap v1.26.0
+	google.golang.org/api v0.126.0
 	google.golang.org/protobuf v1.31.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
 	cloud.google.com/go v0.110.4 // indirect
-	cloud.google.com/go/compute v1.20.1 // indirect
 	cloud.google.com/go/compute/metadata v0.2.3 // indirect
 	cloud.google.com/go/iam v1.1.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
@@ -43,7 +43,6 @@ require (
 	golang.org/x/sync v0.2.0 // indirect
 	golang.org/x/sys v0.8.0 // indirect
 	golang.org/x/text v0.9.0 // indirect
-	google.golang.org/api v0.126.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20230706204954-ccb25ca9f130 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20230629202037-9506855d4529 // indirect

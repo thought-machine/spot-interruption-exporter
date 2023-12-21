@@ -2,6 +2,10 @@
 package handlers
 
 import (
+	"strings"
+	"sync"
+	"time"
+
 	gcppubsub "cloud.google.com/go/pubsub"
 	"github.com/googleapis/google-cloudevents-go/cloud/auditdata"
 	"github.com/thought-machine/spot-interruption-exporter/internal/cache"
@@ -9,9 +13,6 @@ import (
 	"github.com/thought-machine/spot-interruption-exporter/internal/metrics"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/encoding/protojson"
-	"strings"
-	"sync"
-	"time"
 )
 
 type instanceInterruptionEvent struct {
@@ -105,5 +106,4 @@ func messageToInstanceCreationEvent(m *gcppubsub.Message) (instanceCreationEvent
 		ResourceID:  entry.ProtoPayload.ResourceName,
 		ClusterName: clusterName,
 	}, nil
-
 }

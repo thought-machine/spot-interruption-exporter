@@ -1,14 +1,15 @@
 package handlers
 
 import (
+	"sync"
+	"testing"
+
 	gcppubsub "cloud.google.com/go/pubsub"
 	"github.com/stretchr/testify/suite"
 	"github.com/thought-machine/spot-interruption-exporter/internal/cache"
 	"github.com/thought-machine/spot-interruption-exporter/internal/handlers/test_data"
 	"github.com/thought-machine/spot-interruption-exporter/internal/metrics/mocks"
 	"go.uber.org/zap"
-	"sync"
-	"testing"
 )
 
 type HandlersTestSuite struct {
@@ -89,7 +90,6 @@ func (suite *HandlersTestSuite) TestMessageToInstanceInterruptionEvent() {
 }
 
 func (suite *HandlersTestSuite) TestMessageToInstanceCreationEvent() {
-
 	event, err := messageToInstanceCreationEvent(mockCreationMessage)
 	suite.NoError(err)
 	suite.Equal("projects/123456789/zones/europe-west1-c/instances/fake-resource", event.ResourceID)

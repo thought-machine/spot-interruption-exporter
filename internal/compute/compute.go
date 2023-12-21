@@ -1,14 +1,15 @@
 package compute
 
 import (
-	compute "cloud.google.com/go/compute/apiv1"
-	"cloud.google.com/go/compute/apiv1/computepb"
 	"context"
 	"errors"
 	"fmt"
+	"strings"
+
+	compute "cloud.google.com/go/compute/apiv1"
+	"cloud.google.com/go/compute/apiv1/computepb"
 	"go.uber.org/zap"
 	"google.golang.org/api/iterator"
-	"strings"
 )
 
 var (

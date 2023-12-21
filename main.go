@@ -3,27 +3,34 @@
 package main
 
 import (
-	gcppubsub "cloud.google.com/go/pubsub"
 	"context"
+	"fmt"
+	"log"
+	"os"
+	"sync"
+
+	gcppubsub "cloud.google.com/go/pubsub"
 	"github.com/thought-machine/spot-interruption-exporter/internal/cache"
 	"github.com/thought-machine/spot-interruption-exporter/internal/compute"
 	"github.com/thought-machine/spot-interruption-exporter/internal/events"
 	"github.com/thought-machine/spot-interruption-exporter/internal/handlers"
 	"github.com/thought-machine/spot-interruption-exporter/internal/metrics"
 	"go.uber.org/zap"
-	"log"
-	"os"
-	"sync"
 )
 
 func main() {
+	if err := run(); err != nil {
+		log.Fatal(err)
+	}
+}
 
+func run() error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
 	cfg, err := LoadConfig(os.Getenv("CONFIG_PATH"))
 	if err != nil {
-		log.Fatalf("failed to load app configuration: %s", err.Error())
+		return fmt.Errorf("failed to load app configuration: %s", err.Error())
 	}
 
 	logger := configureLogger(cfg)
@@ -32,22 +39,22 @@ func main() {
 
 	interruptionEvents, err := createSubscriptionClient(ctx, logger, cfg.Project, cfg.PubSub.InstanceInterruptionSubscriptionName)
 	if err != nil {
-		logger.Fatal("failed to init instance interruption subscription: %s", err.Error())
+		return fmt.Errorf("failed to init instance interruption subscription: %s", err.Error())
 	}
 
 	creationEvents, err := createSubscriptionClient(ctx, logger, cfg.Project, cfg.PubSub.InstanceCreationSubscriptionName)
 	if err != nil {
-		logger.Fatal("failed to init instance creation subscription: %s", err.Error())
+		return fmt.Errorf("failed to init instance creation subscription: %s", err.Error())
 	}
 
 	computeClient, err := createComputeClient(ctx, logger, cfg)
 	if err != nil {
-		logger.Fatal("failed to init compute client")
+		return fmt.Errorf("failed to init compute client")
 	}
 
 	initialInstances, err := computeClient.ListInstancesBelongingToKubernetesCluster(ctx)
 	if err != nil {
-		logger.Fatal("failed to determine initial instances belonging to kubernetes clusters: %s", err.Error())
+		return fmt.Errorf("failed to determine initial instances belonging to kubernetes clusters: %s", err.Error())
 	}
 
 	interruptions := make(chan *gcppubsub.Message, 30)
@@ -65,6 +72,7 @@ func main() {
 	go handlers.HandleCreationEvents(additions, instanceToClusterMappings, logger, wg)
 	logger.Info("handlers started for instance creation & interruption events")
 	wg.Wait()
+	return nil
 }
 
 func createComputeClient(ctx context.Context, log *zap.SugaredLogger, cfg Config) (compute.Client, error) {

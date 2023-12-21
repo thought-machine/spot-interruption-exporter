@@ -1,14 +1,14 @@
 package cache
 
 import (
-	"github.com/stretchr/testify/suite"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/suite"
 )
 
 type CacheTestSuite struct {
 	suite.Suite
-	sut Cache
 }
 
 func TestCacheTestSuite(t *testing.T) {

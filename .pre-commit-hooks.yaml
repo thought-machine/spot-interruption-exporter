@@ -1,0 +1,6 @@
+-   id: gci-imports
+    name: GCI Imports
+    description: Runs GCI (https://github.com/daixiang0/gci) on all files
+    entry: gci write .
+    language: golang
+    types: [go]
