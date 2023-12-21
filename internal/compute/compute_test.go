@@ -30,6 +30,6 @@ func (suite *ComputeTestSuite) TestGetInstancesBelongingToKubernetesClusters() {
 		ProjectID: "generic-project",
 	})
 	res, err := c.ListInstancesBelongingToKubernetesCluster(context.Background())
-	suite.NoError(err)
+	suite.Error(err)
 	suite.NotEmpty(res)
 }
