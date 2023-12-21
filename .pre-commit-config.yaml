@@ -1,6 +1,6 @@
 repos:
   -   repo: https://github.com/pre-commit/pre-commit-hooks
-      rev: v2.3.0
+      rev: v4.5.0
       hooks:
         -   id: check-yaml
         -   id: end-of-file-fixer
@@ -10,6 +10,6 @@ repos:
       hooks:
         -   id: golangci-lint
   -   repo: https://github.com/thought-machine/spot-interruption-exporter
-      rev: master
+      rev: 9fb986de4ece0333e9a3765077df56e3e2858baa
       hooks:
         -   id: gci-imports
