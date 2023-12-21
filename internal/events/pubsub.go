@@ -43,6 +43,6 @@ func NewPubSubNotifier(ctx context.Context, input *PubSubNotifierInput) (Subscri
 	}
 	return &subscription{
 		t:   client.Subscription(input.SubscriptionName),
-		log: input.Logger.With(input.SubscriptionName),
+		log: input.Logger.With("subscription_name", input.SubscriptionName),
 	}, nil
 }

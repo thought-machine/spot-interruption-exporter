@@ -58,7 +58,7 @@ func HandleInterruptionEvents(interruptions chan *gcppubsub.Message, instanceToC
 		clusterName, err := instanceToClusterMappings.Get(e.ResourceID)
 		if err != nil {
 			s.Warnf("failed to determine cluster the instance (%s) belongs to: %s", e.ResourceID, err.Error())
-			return
+			continue
 		}
 		expireAfter := time.Second * 30
 		err = instanceToClusterMappings.SetExpiration(e.ResourceID, expireAfter)
