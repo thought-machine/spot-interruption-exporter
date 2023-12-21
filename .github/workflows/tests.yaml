@@ -21,9 +21,6 @@ jobs:
       - name: Download mockery
         run: go install github.com/vektra/mockery/v2@v2.39.1
 
-      - name: Download pre-commit
-        run: pip install pre-commit
-
       - name: Generate
         run: go generate -v ./...
 
