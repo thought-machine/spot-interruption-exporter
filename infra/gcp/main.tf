@@ -19,27 +19,9 @@
  * ```
 **/
 
-terraform {
-  required_providers {
-    google = {
-      source  = "hashicorp/google"
-      version = "~> 5.0"
-    }
-  }
-}
-
-provider "google" {
-  project = var.project
-  default_labels = {
-    managed-by = "spot-interruption-exporter"
-  }
-}
-
 locals {
   service_account_member = "serviceAccount:${var.project}.svc.id.goog[${var.kubernetes_service_account_namespace}/${var.kubernetes_service_account_name}]"
-
 }
-
 
 module "interruption_events" {
   source = "./event-forwarder"
