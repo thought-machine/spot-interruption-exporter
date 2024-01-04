@@ -65,3 +65,10 @@ resource "google_project_iam_member" "pubsub_subscriber" {
 
   member = google_service_account.spot_interruption_exporter.member
 }
+
+resource "google_project_iam_member" "compute_read_only" {
+  project = var.project
+  role    = "roles/compute.viewer"
+
+  member = google_service_account.spot_interruption_exporter.member
+}
