@@ -100,17 +100,19 @@ func messageToInstanceCreationEvent(m *gcppubsub.Message) (instanceCreationEvent
 		return instanceCreationEvent{}, fmt.Errorf("expected labels not found on instance creation request, operation ID: %s", entry.Operation.Id)
 	}
 
-	clusterName := "unknown"
+	var clusterName string
+	var found bool
 	for _, v := range labels.GetListValue().Values {
 		label := v.GetStructValue().AsMap()
 		labelKey := label["key"].(string)
 		if strings.EqualFold(labelKey, compute.ClusterNameLabelKey) {
 			clusterName = label["value"].(string)
+			found = true
 			break
 		}
 	}
 
-	if clusterName == "unknown" {
+	if !found {
 		return instanceCreationEvent{}, fmt.Errorf("expected cluster label %s not found on instance creation request, operation ID: %s", compute.ClusterNameLabelKey, entry.Operation.Id)
 	}
 
