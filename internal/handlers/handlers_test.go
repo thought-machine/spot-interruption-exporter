@@ -71,7 +71,7 @@ func (suite *HandlersTestSuite) TestHandleCreationEvents() {
 	additions <- mockCreationMessage
 	close(additions)
 	wg.Wait()
-	resourceName := "projects/123456789/zones/europe-west1-c/instances/fake-resource"
+	resourceName := "projects/mock-project/zones/europe-west1-c/instances/fake-resource"
 
 	cluster, err := instanceToClusterMappings.Get(resourceName)
 	suite.NoError(err)
@@ -92,7 +92,7 @@ func (suite *HandlersTestSuite) TestMessageToInstanceInterruptionEvent() {
 func (suite *HandlersTestSuite) TestMessageToInstanceCreationEvent() {
 	event, err := messageToInstanceCreationEvent(mockCreationMessage)
 	suite.NoError(err)
-	suite.Equal("projects/123456789/zones/europe-west1-c/instances/fake-resource", event.ResourceID)
+	suite.Equal("projects/mock-project/zones/europe-west1-c/instances/fake-resource", event.ResourceID)
 	suite.Equal("fake-cluster", event.ClusterName)
 	suite.Equal("12345", event.MessageID)
 }
