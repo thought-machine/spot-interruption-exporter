@@ -2,6 +2,7 @@
 package handlers
 
 import (
+	"fmt"
 	"strings"
 	"sync"
 	"time"
@@ -33,6 +34,7 @@ func HandleCreationEvents(additions chan *gcppubsub.Message, instanceToClusterMa
 		a, err := messageToInstanceCreationEvent(addition)
 		if err != nil {
 			l.Warnf("failed to convert pubsub message to creation event: %s", err.Error())
+			continue
 		}
 		l.With("message_id", a.MessageID, "resource_id", a.ResourceID, "kubernetes_cluster", a.ClusterName).Info("added")
 		instanceToClusterMappings.Insert(a.ResourceID, a.ClusterName)
@@ -91,8 +93,14 @@ func messageToInstanceCreationEvent(m *gcppubsub.Message) (instanceCreationEvent
 	if err != nil {
 		return instanceCreationEvent{}, err
 	}
-	labels := entry.ProtoPayload.Request.GetFields()["labels"]
-	clusterName := "undefined"
+	requestFields := entry.ProtoPayload.Request.GetFields()
+
+	labels, ok := requestFields["labels"]
+	if !ok {
+		return instanceCreationEvent{}, fmt.Errorf("expected labels not found on instance creation request, operation ID: %s", entry.Operation.Id)
+	}
+
+	clusterName := "unknown"
 	for _, v := range labels.GetListValue().Values {
 		label := v.GetStructValue().AsMap()
 		labelKey := label["key"].(string)
@@ -101,9 +109,21 @@ func messageToInstanceCreationEvent(m *gcppubsub.Message) (instanceCreationEvent
 			break
 		}
 	}
+
+	if clusterName == "unknown" {
+		return instanceCreationEvent{}, fmt.Errorf("expected cluster label %s not found on instance creation request, operation ID: %s", compute.ClusterNameLabelKey, entry.Operation.Id)
+	}
+
+	responseFields := entry.ProtoPayload.Response.GetFields()
+	targetLink, ok := responseFields["targetLink"]
+	if !ok {
+		return instanceCreationEvent{}, fmt.Errorf("expected targetLink not found in instance creation response, operation ID: %s", entry.Operation.Id)
+	}
+	resourceID := strings.TrimPrefix(targetLink.GetStringValue(), "https://www.googleapis.com/compute/v1/")
+
 	return instanceCreationEvent{
 		MessageID:   m.ID,
-		ResourceID:  entry.ProtoPayload.ResourceName,
+		ResourceID:  resourceID,
 		ClusterName: clusterName,
 	}, nil
 }
