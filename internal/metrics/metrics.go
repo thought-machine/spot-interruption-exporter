@@ -16,7 +16,7 @@ var (
 	interruptionEvents = promauto.NewCounterVec(prometheus.CounterOpts{
 		Name: "interruption_events_total",
 		Help: "The total number of spot interruptions for a given cluster",
-	}, []string{"kubernetes_cluster"})
+	}, []string{"target_kubernetes_cluster"})
 )
 
 // Client provides methods for modifying metrics
