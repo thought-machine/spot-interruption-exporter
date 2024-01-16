@@ -70,7 +70,7 @@ func HandleInterruptionEvents(interruptions chan *gcppubsub.Message, instanceToC
 		}
 		s.Debugf("%s will no longer be tracked after %s", e.ResourceID, expireAfter)
 
-		s.Info("interrupted")
+		s.With("kubernetes_cluster", clusterName).Info("interrupted")
 		metrics.IncreaseInterruptionEventCounter(clusterName)
 	}
 }
